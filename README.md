@@ -7,7 +7,6 @@
 
 #### Utiliza o **Redis** como backend para gerenciamento do canal de mensagens, e o servidor **Daphne** para suportar ASGI e WebSockets.
 
-#### O projeto é ideal para quem quer aprender sobre comunicação assíncrona em aplicações web com Django.
 ---
 
 ## 🔎 Como Funciona
@@ -46,7 +45,7 @@
 1.  **Clone o repositório:**
 
     ```bash
-    git clone https://github.com/seuusuario/webchat.git
+    git clone https://github.com/henrique151/WebChat-Simples.git
     cd webchat
     ```
 
