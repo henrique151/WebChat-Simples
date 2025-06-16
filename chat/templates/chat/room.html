@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WebChat - {{ room_name }}</title>
+    <style>
+        /* Reset básico */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: 600;
+            margin-right: 10px;
+            color: #34495e;
+        }
+
+        #username {
+            width: 220px;
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            outline-offset: 2px;
+            transition: border-color 0.3s;
+        }
+
+        #username:focus {
+            border-color: #3498db;
+        }
+
+        #chat-log {
+            width: 100%;
+            max-width: 600px;
+            height: 350px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            overflow-y: auto;
+            box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
+            margin-bottom: 20px;
+        }
+
+        #chat-log div {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: #ecf0f1;
+            word-wrap: break-word;
+        }
+
+        #chat-log div strong {
+            color: #2c3e50;
+        }
+
+        #chat-message-input {
+            width: calc(100% - 130px);
+            max-width: 480px;
+            padding: 10px 14px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px 0 0 5px;
+            outline-offset: 2px;
+            transition: border-color 0.3s;
+        }
+
+        #chat-message-input:focus {
+            border-color: #3498db;
+        }
+
+        #chat-message-submit {
+            padding: 10px 25px;
+            font-size: 16px;
+            border: none;
+            background-color: #3498db;
+            color: white;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #chat-message-submit:hover {
+            background-color: #2980b9;
+        }
+
+        /* Responsividade */
+        @media (max-width: 640px) {
+
+            #username,
+            #chat-message-input {
+                width: 100%;
+                max-width: none;
+                border-radius: 5px;
+                margin-bottom: 10px;
+            }
+
+            #chat-message-submit {
+                width: 100%;
+                border-radius: 5px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Sala: {{ room_name }}</h2>
+
+    <label for="username">Seu nome:</label>
+    <input type="text" id="username" placeholder="Digite seu nome" />
+
+    <div id="chat-log"></div>
+
+    <div style="display: flex; max-width: 600px; width: 100%;">
+        <input id="chat-message-input" type="text" placeholder="Digite sua mensagem..." autocomplete="off" />
+        <button id="chat-message-submit">Enviar</button>
+    </div>
+
+    <script>
+        const roomName = "{{ room_name }}";
+        const chatSocket = new WebSocket('ws://' + window.location.host + '/ws/chat/' + roomName + '/');
+
+        chatSocket.onmessage = function (e) {
+            const data = JSON.parse(e.data);
+            document.querySelector('#chat-log').innerHTML += (
+                '<div><strong>' + data.username + ':</strong> ' + data.message + '</div>'
+            );
+            // Scroll para o final a cada mensagem recebida
+            const chatLog = document.querySelector('#chat-log');
+            chatLog.scrollTop = chatLog.scrollHeight;
+        };
+
+        chatSocket.onclose = function (e) {
+            console.error('WebSocket fechado inesperadamente');
+        };
+
+        document.querySelector('#chat-message-input').focus();
+        document.querySelector('#chat-message-input').onkeyup = function (e) {
+            if (e.keyCode === 13) {
+                document.querySelector('#chat-message-submit').click();
+            }
+        };
+
+        document.querySelector('#chat-message-submit').onclick = function (e) {
+            const username = document.querySelector('#username').value.trim();
+            const messageInputDom = document.querySelector('#chat-message-input');
+            const message = messageInputDom.value.trim();
+
+            if (!username) {
+                alert("Digite seu nome antes de enviar a mensagem.");
+                return;
+            }
+            if (!message) {
+                alert("Digite uma mensagem antes de enviar.");
+                return;
+            }
+
+            chatSocket.send(JSON.stringify({
+                'username': username,
+                'message': message
+            }));
+            messageInputDom.value = '';
+        };
+    </script>
+</body>
+
+</html>
