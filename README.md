@@ -46,7 +46,7 @@
 
     ```bash
     git clone https://github.com/henrique151/WebChat-Simples.git
-    cd webchat
+    cd WebChat-Simples
     ```
 
 2.  **Crie e ative um ambiente virtual** (opcional, mas recomendado):
